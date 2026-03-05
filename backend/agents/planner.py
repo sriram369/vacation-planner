@@ -22,7 +22,7 @@ EXTRACT_SYSTEM = """You are a travel planning assistant. Extract trip details fr
 Return ONLY a JSON object with these fields (use null for anything not mentioned):
 {
   "destination": "city/country or null",
-  "origin": "departing city or null — default 'New York' if not mentioned",
+  "origin": "departing city or null — null if not mentioned. If multiple origins are mentioned (group trip), use the primary user's city (the one who says 'I live in...' or is mentioned first)",
   "departure_date": "YYYY-MM-DD or null",
   "return_date": "YYYY-MM-DD or null",
   "trip_days": number or null,
@@ -110,12 +110,15 @@ async def chat(message: str, history: list[dict], existing_plan: dict | None = N
     if existing_plan:
         return await _refine_plan(message, history, existing_plan)
 
-    # Extract trip parameters from the message
+    # Extract trip parameters — include full conversation history for context
+    extract_messages = [{"role": h["role"], "content": h["content"]} for h in history]
+    extract_messages.append({"role": "user", "content": message})
+
     extract_resp = client.messages.create(
         model=MODEL,
         max_tokens=512,
         system=EXTRACT_SYSTEM,
-        messages=[{"role": "user", "content": message}],
+        messages=extract_messages,
     )
     raw = extract_resp.content[0].text.strip()
     if raw.startswith("```"):
@@ -138,7 +141,7 @@ async def chat(message: str, history: list[dict], existing_plan: dict | None = N
 
 async def _generate_plan(params: dict, original_message: str) -> dict:
     destination = params.get("destination") or "unknown"
-    origin = params.get("origin") or "New York"
+    origin = params.get("origin") or ""
     trip_days = params.get("trip_days") or 7
     travelers = params.get("travelers") or 2
     vibe = params.get("vibe") or "balanced"
@@ -157,18 +160,27 @@ async def _generate_plan(params: dict, original_message: str) -> dict:
     dates_str = f"{dep_date} to {ret_date}"
 
     # Parallel data fetch
-    accommodation, attractions, tips, flights = await asyncio.gather(
-        asyncio.to_thread(get_accommodation, destination, dates_str, travelers),
-        asyncio.to_thread(get_attractions, destination),
-        asyncio.to_thread(get_travel_tips, destination),
-        asyncio.to_thread(search_flights, origin, destination, dep_date, ret_date, travelers),
-    )
+    if origin:
+        accommodation, attractions, tips, flights = await asyncio.gather(
+            asyncio.to_thread(get_accommodation, destination, dates_str, travelers),
+            asyncio.to_thread(get_attractions, destination),
+            asyncio.to_thread(get_travel_tips, destination),
+            asyncio.to_thread(search_flights, origin, destination, dep_date, ret_date, travelers),
+        )
+    else:
+        accommodation, attractions, tips = await asyncio.gather(
+            asyncio.to_thread(get_accommodation, destination, dates_str, travelers),
+            asyncio.to_thread(get_attractions, destination),
+            asyncio.to_thread(get_travel_tips, destination),
+        )
+        flights = []
 
+    origin_line = f"- Origin: {origin}" if origin else "- Origin: not specified (group trip or unspecified)"
     context = f"""USER REQUEST: "{original_message}"
 
 EXTRACTED DETAILS:
 - Destination: {destination}
-- Origin: {origin}
+{origin_line}
 - Dates: {dates_str} ({trip_days} days)
 - Travelers: {travelers}
 - Vibe: {vibe}
@@ -200,8 +212,7 @@ EXTRACTED DETAILS:
 
     try:
         plan = json.loads(raw)
-        if flights:
-            plan["flights_found"] = flights
+        plan["flights_found"] = flights  # always use real data ([] if none found)
         return plan
     except json.JSONDecodeError:
         return {"error": "Could not parse plan", "raw": raw}
