@@ -1,0 +1,7 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.1
+anthropic==0.40.0
+tavily-python==0.5.0
+httpx==0.28.1
+amadeus==9.0.0
