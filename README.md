@@ -1,56 +1,61 @@
 # Wandr — AI Vacation Planner
 
-Tell it where you want to go. Claude searches real flights via Amadeus, pulls Airbnb & hotel prices, and builds a complete day-by-day itinerary with a 3-tier budget breakdown (Budget / Mid-Range / Luxury).
+> One message → full itinerary, real flights, 3-tier budget breakdown.
 
-**Live demo:** (add after deploy)
-**Backend API:** (add after deploy)
+**Live Demo → [wandr-vacation-planner.vercel.app](https://wandr-vacation-planner.vercel.app)**
 
-## What it does
+## What It Does
 
-- **Real flight search** via Amadeus API (origin → destination, round-trip)
-- **Live accommodation prices** — searches Airbnb, Booking.com, hotels via Tavily
-- **Day-by-day itinerary** with morning / afternoon / evening + insider tips
-- **3-tier budget breakdown** — Budget 🟢 / Mid-Range 🟡 / Luxury 🔴 with cost estimates for flights, hotels, food, activities
-- **Top stays & eats** — curated property and restaurant recommendations
-- **Travel tips** — visa, currency, transport, weather, language
+Just describe your trip in plain English. Wandr handles the rest:
 
-## Stack
+- Searches **real flights** via Google Flights (SerpApi)
+- Pulls **live hotel & Airbnb prices** via Tavily
+- Generates a **complete day-by-day itinerary** with real restaurant names and neighborhoods
+- Gives a **3-tier budget breakdown** — Budget / Mid-Range / Luxury
+- Supports **plan refinement** — "make it cheaper", "add more beach days", "swap to Tokyo"
+
+## Tech Stack
 
 | Layer | Tech |
-|-------|------|
-| AI Planner | Claude Sonnet (Anthropic) |
-| Flights | Amadeus for Developers API |
-| Accommodation / Attractions | Tavily Search |
-| Backend | FastAPI |
-| Frontend | Next.js + Tailwind |
-| Backend deploy | Railway |
-| Frontend deploy | Vercel |
+|---|---|
+| AI | Claude Sonnet 4 |
+| Flights | SerpApi — Google Flights engine |
+| Hotels / Airbnb | Tavily Search API |
+| Backend | FastAPI, Python |
+| Frontend | Next.js, Tailwind CSS |
+| Backend Deploy | Railway |
+| Frontend Deploy | Vercel |
 
-## Local setup
+## How It Works
 
-**Backend:**
+1. Claude extracts trip details (destination, dates, travelers, vibe) from natural language using full conversation history
+2. Backend fetches flights, accommodation, attractions, and travel tips in parallel
+3. Claude synthesizes all real-time data into a structured JSON plan
+4. Follow-up messages refine the existing plan without re-fetching data
+
+## Local Setup
+
+**Backend**
 ```bash
 cd backend
-python3.11 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env  # add your keys
-uvicorn main:app --reload --port 8000
+cp .env.example .env   # add keys below
+uvicorn main:app --reload
 ```
 
-**Frontend:**
+**Frontend**
 ```bash
 cd frontend
 npm install
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 npm run dev
 ```
 
-## Environment variables
+## Environment Variables
 
-```
-ANTHROPIC_API_KEY=your_key
-TAVILY_API_KEY=your_key
-AMADEUS_API_KEY=your_key
-AMADEUS_API_SECRET=your_secret
-```
-
-Get Amadeus keys free at: https://developers.amadeus.com/self-service
+| Variable | Where |
+|---|---|
+| `ANTHROPIC_API_KEY` | Backend (Railway) |
+| `SERPAPI_KEY` | Backend (Railway) — [get free key](https://serpapi.com) |
+| `TAVILY_API_KEY` | Backend (Railway) |
+| `NEXT_PUBLIC_API_URL` | Frontend (Vercel / `.env.local`) |
