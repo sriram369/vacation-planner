@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+:root {
+  /* Warm sand + ocean palette — totally different from other projects */
+  --sand:       #f5f0e8;
+  --sand-dark:  #ede5d8;
+  --white:      #fdfaf5;
+  --ocean:      #1a6b8a;
+  --ocean-light:#2589ad;
+  --ocean-bg:   #e8f4f8;
+  --coral:      #e05c3a;
+  --coral-bg:   #fdf0ec;
+  --gold:       #c4960a;
+  --gold-bg:    #fef8e7;
+  --green:      #2d7a4f;
+  --green-bg:   #e8f5ee;
+  --ink:        #1e2832;
+  --ink-2:      #3d4a56;
+  --ink-3:      #7a8794;
+  --border:     rgba(30,40,50,0.10);
+  --border-dark:rgba(30,40,50,0.20);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--sand);
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* Subtle warm texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.018'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease forwards;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-dark);
+  border-top-color: var(--ocean);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.pulse {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--sand-dark) 25%, var(--sand) 50%, var(--sand-dark) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+/* Budget tier cards */
+.budget-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  flex: 1;
+}
+
+.budget-card.budget-tier { border-top: 3px solid var(--green); }
+.budget-card.mid-tier    { border-top: 3px solid var(--gold); }
+.budget-card.luxury-tier { border-top: 3px solid var(--coral); }
+
+/* Day card */
+.day-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+/* Flight card */
+.flight-card {
+  background: var(--ocean-bg);
+  border: 1px solid rgba(26,107,138,0.18);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Section label */
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
+/* Pill tag */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
