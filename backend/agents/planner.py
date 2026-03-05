@@ -186,7 +186,7 @@ EXTRACTED DETAILS:
 - Vibe: {vibe}
 """
     if flights:
-        context += "\nREAL FLIGHT OPTIONS (Amadeus):\n"
+        context += "\nREAL FLIGHT OPTIONS (Google Flights via SerpApi):\n"
         for f in flights[:3]:
             context += f"  • {f['carrier']} {f['origin']}→{f['destination']} | {f['price']} | {f['duration']} | {f['stops']} stop(s)\n"
 

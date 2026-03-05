@@ -104,7 +104,7 @@ function PlanView({ plan }: { plan: Plan }) {
       {plan.flights_found?.length > 0 && (
         <div style={{ background: "var(--white)", padding: "16px 32px", borderBottom: "1px solid var(--border)" }}>
           <div style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 10 }}>
-            ✈️ Real Flights Found (Amadeus)
+            ✈️ Real Flights Found (Google Flights)
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {plan.flights_found.map((f, i) => (
@@ -443,7 +443,7 @@ export default function Home() {
         </div>
         {!hasStarted && (
           <div style={{ textAlign: "center", marginTop: 10, fontSize: "0.76rem", color: "var(--ink-3)" }}>
-            Press Enter to send · Real flights via Amadeus · Powered by Claude
+            Press Enter to send · Real flights via Google Flights · Powered by Claude
           </div>
         )}
       </div>
